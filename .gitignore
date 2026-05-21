@@ -1,0 +1,49 @@
+# Visual Studio / .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.pidb
+*.userprefs
+*.tmp_proj
+*.sln.docstates
+
+# Aspire
+*.aspire-manifest.json
+
+# Rider / VS Code
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temp / work files
+.tmp/
+**/.tmp/
+*.tmp
+*.bak
+*.orig
+
+# Recordings (rehearsal backup, kept locally)
+*.mp4
+*.mov
+*.avi
+
+# NuGet
+*.nupkg
+*.snupkg
+artifacts/
+packages/
+
+# Coverage
+coverage/
+*.coverage
+*.coveragexml
