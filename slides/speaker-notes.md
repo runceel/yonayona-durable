@@ -10,8 +10,7 @@ YonaYona Durable Functions Night（2026/06/12）20 分セッション用のス�
 
 ## Slide 1 — 表紙（〜0:30）
 
-「皆さん、こんばんは。本日は YonaYona Durable Functions Night にお越しいただきありがとうございます。Microsoft の太田と申します。本セッションでは "Durable Functions 入門 〜 Durable Agent への道" というタイトルで、20 分お話しします。
-後続の maki さんの Durable Agent セッションへの土台になるよう、基本のキから整理していきます」
+「日本マイクロソフトの太田と申します。本日は "Durable Functions 入門 〜 Durable Agent への道" というタイトルで、後続の maki さんの Durable Agent セッションへの土台になるよう、基本のキから整理していきます。よろしくお願いします」
 
 ---
 
@@ -125,7 +124,7 @@ DTS は Managed Identity 認証のみで、接続文字列が要らないのも�
 
 ## Slide 18 — Live Demo（〜11:35）
 
-「ここからはお待ちかね、ライブデモです。Aspire で Functions と DTS Emulator を一緒に起動して、Functions だけ止めてみます」
+「ここからはライブデモです。Aspire で Functions と DTS Emulator を一緒に起動して、Functions だけ止めてみます」
 
 > ⚠️ **デモ進行台本は別途 `demo/README.md` の「デモシナリオ」参照**
 >
@@ -153,8 +152,7 @@ DTS は Managed Identity 認証のみで、接続文字列が要らないのも�
 
 ## Slide 20 — Thank you（〜13:30）
 
-「ご清聴ありがとうございました。本日のスライドとデモコードは GitHub に公開しています。ハッシュタグ `#YonaAz` でフィードバックいただければ嬉しいです。
-それでは maki さん、よろしくお願いします！」
+「ご清聴ありがとうございました。本日のスライドとデモコードは GitHub に公開しています。ハッシュタグ `#YonaAz` でフィードバックいただければ嬉しいです。この後の maki さんのセッションもぜひお楽しみに」
 
 ---
 
