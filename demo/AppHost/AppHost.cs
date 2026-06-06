@@ -13,7 +13,8 @@ var taskHub = scheduler.AddTaskHub("taskhub");
 builder.AddAzureFunctionsProject<Projects.Functions>("funcapp")
     .WithHostStorage(storage)
     .WithReference(taskHub)
-    .WaitFor(scheduler);
+    .WaitFor(scheduler)
+    .WithExternalHttpEndpoints();
 
 #pragma warning restore ASPIREDURABLETASK001
 

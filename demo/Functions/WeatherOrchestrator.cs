@@ -1,4 +1,4 @@
-using Microsoft.Azure.Functions.Worker;
+﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask;
 
 namespace Functions;
@@ -12,14 +12,20 @@ public static class WeatherOrchestrator
         var cities = await context.CallActivityAsync<string[]>(
             nameof(WeatherActivities.GetCities));
 
-        var tasks = cities
-            .Select(city => context.CallActivityAsync<CityWeather>(
-                nameof(WeatherActivities.FetchWeather), city))
-            .ToList();
+        var weatherList = new List<CityWeather>();
 
-        var weathers = await Task.WhenAll(tasks);
+        foreach (var cityBatch in cities.Chunk(10))
+        {
+            var tasks = cityBatch
+                .Select(city => context.CallActivityAsync<CityWeather>(
+                    nameof(WeatherActivities.FetchWeather), city))
+                .ToList();
 
-        var average = weathers.Average(w => w.Temperature);
-        return new WeatherResult(weathers, average);
+            var batchResult = await Task.WhenAll(tasks);
+            weatherList.AddRange(batchResult);
+        }
+
+        var average = weatherList.Average(w => w.Temperature);
+        return new WeatherResult(weatherList.ToArray(), average);
     }
 }
