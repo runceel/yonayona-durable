@@ -1,0 +1,31 @@
+@baseUrl = http://localhost:7018
+@instanceIdVariable = {{instanceId}}
+
+### 1. オーケストレーション開始
+### ダッシュボードで確認したポート番号に置き換えてください（デフォルト例: 7018）
+POST {{baseUrl}}/api/StartWeather
+
+> {%
+// レスポンスの instanceId と StatusQueryGetUri を変数に保存
+const response = response.body;
+client.global.set('instanceId', response.id);
+client.global.set('statusQueryUri', response.statusQueryGetUri);
+console.log('Instance ID:', response.id);
+console.log('Status Query URI:', response.statusQueryGetUri);
+%}
+
+###
+### 進捗確認（数秒待ってから実行してください）
+### - runtimeStatus: "Running" → まだ実行中
+### - runtimeStatus: "Completed" → 完了、output に結果が含まれる
+GET {{baseUrl}}/runtime/webhooks/durabletask/instances/{{instanceId}}
+
+###
+### オーケストレーション情報を全て取得（パラメータ付き）
+GET {{baseUrl}}/runtime/webhooks/durabletask/instances/{{instanceId}}?showHistroy=true&showInput=true
+
+###
+### デモ用：テスト用のインスタンスで Status を確認
+### （上のリクエストで得た instanceId をここに挿入して実行）
+### 例: GET http://localhost:7018/runtime/webhooks/durabletask/instances/abc123def456
+GET {{baseUrl}}/runtime/webhooks/durabletask/instances/
