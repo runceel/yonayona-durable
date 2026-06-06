@@ -1,15 +1,3 @@
 ﻿@baseUrl = http://localhost:7018
-@instanceId = test
 
-### 1. オーケストレーション開始
-### ダッシュボードで確認したポート番号に置き換えてください（デフォルト例: 7018）
 POST {{baseUrl}}/api/StartWeather
-
-###
-GET {{baseUrl}}/runtime/webhooks/durabletask/instances/{{instanceId}}
-
-###
-GET {{baseUrl}}/runtime/webhooks/durabletask/instances/{{instanceId}}?showHistroy=true&showInput=true
-
-###
-GET {{baseUrl}}/runtime/webhooks/durabletask/instances/
