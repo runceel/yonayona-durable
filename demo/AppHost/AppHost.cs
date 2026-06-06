@@ -22,15 +22,14 @@ var taskHub = scheduler.AddTaskHub("taskhub");
 taskHub.OnResourceReady(async (resource, evt, ct) =>
 {
     var dashboardEndpoint = scheduler.Resource.GetEndpoint("dashboard");
-    var grpcEndpoint = scheduler.Resource.GetEndpoint("grpc");
-    if (!dashboardEndpoint.IsAllocated || !grpcEndpoint.IsAllocated)
+    if (!dashboardEndpoint.IsAllocated) 
     {
         return;
     }
 
     var hubName = resource.Name;
-    var grpcUrl = Uri.EscapeDataString(grpcEndpoint.Url);
-    var deepLink = $"{dashboardEndpoint.Url}/subscriptions/default/schedulers/default/taskhubs/{hubName}?endpoint={grpcUrl}";
+    var dashboardUrl = Uri.EscapeDataString(dashboardEndpoint.Url);
+    var deepLink = $"{dashboardEndpoint.Url}/subscriptions/default/schedulers/default/taskhubs/{hubName}?endpoint={dashboardUrl}";
 
     var notifications = evt.Services.GetRequiredService<ResourceNotificationService>();
     await notifications.PublishUpdateAsync(resource, snapshot => snapshot with
