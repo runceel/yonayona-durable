@@ -12,20 +12,19 @@ public static class WeatherOrchestrator
         var cities = await context.CallActivityAsync<string[]>(
             nameof(WeatherActivities.GetCities));
 
-        var weatherList = new List<CityWeather>();
+        List<CityWeather> weatherList = [];
 
         foreach (var cityBatch in cities.Chunk(10))
         {
             var tasks = cityBatch
                 .Select(city => context.CallActivityAsync<CityWeather>(
-                    nameof(WeatherActivities.FetchWeather), city))
-                .ToList();
+                    nameof(WeatherActivities.FetchWeather), city));
 
             var batchResult = await Task.WhenAll(tasks);
             weatherList.AddRange(batchResult);
         }
 
         var average = weatherList.Average(w => w.Temperature);
-        return new WeatherResult(weatherList.ToArray(), average);
+        return new WeatherResult([.. weatherList], average);
     }
 }

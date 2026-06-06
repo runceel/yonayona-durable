@@ -14,9 +14,15 @@ public static class WeatherActivities
         "福岡", "佐賀", "長崎", "熊本", "大分", "宮崎", "鹿児島", "那覇", "旭川", "北九州"
     ];
 
+    /// <summary>
+    /// 都市名のリストを返すアクティビティ関数
+    /// </summary>
     [Function(nameof(GetCities))]
     public static string[] GetCities([ActivityTrigger] object? _) => DefaultCities;
 
+    /// <summary>
+    /// 都市名を受け取り、天気情報を返すアクティビティ関数
+    /// </summary>
     [Function(nameof(FetchWeather))]
     public static async Task<CityWeather> FetchWeather(
         [ActivityTrigger] string city,
