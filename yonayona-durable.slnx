@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/demo/">
+    <Project Path="demo/AppHost/AppHost.csproj" />
+    <Project Path="demo/Functions/Functions.csproj" />
+    <Project Path="demo/ServiceDefaults/ServiceDefaults.csproj" />
+  </Folder>
+</Solution>
