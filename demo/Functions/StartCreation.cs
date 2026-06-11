@@ -5,18 +5,19 @@ using Microsoft.Extensions.Logging;
 
 namespace Functions;
 
-public static class StartWeather
+public static class StartCreation
 {
-    [Function(nameof(StartWeather))]
+    [Function(nameof(StartCreation))]
     public static async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", "get")] HttpRequestData req,
         [DurableClient] DurableTaskClient client,
         FunctionContext context)
     {
-        var logger = context.GetLogger(nameof(StartWeather));
+        var logger = context.GetLogger(nameof(StartCreation));
 
+        // リソース作成オーケストレーションを新規開始する。
         string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(
-            nameof(WeatherOrchestrator));
+            nameof(ResourceCreationOrchestrator));
 
         logger.LogInformation("Started orchestration with instance ID = {InstanceId}", instanceId);
 

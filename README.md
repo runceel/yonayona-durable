@@ -17,11 +17,11 @@ YonaYona Azure Club 第 17 回 **YonaYona Durable Functions Night** 登壇用の
 | `demo/`   | Aspire AppHost + Azure Functions + Durable Task Scheduler Emulator のデモ |
 | `demo/AppHost/`         | Aspire AppHost プロジェクト |
 | `demo/ServiceDefaults/` | Aspire ServiceDefaults |
-| `demo/Functions/`       | Azure Functions（isolated worker, .NET 8） |
+| `demo/Functions/`       | Azure Functions（isolated worker, .NET 10） |
 
 ## 前提
 
-- .NET 10 SDK（または .NET 8 SDK）
+- .NET 10 SDK
 - [Aspire CLI](https://learn.microsoft.com/dotnet/aspire/cli/install) 13.3.x 以上
 - [Azure Functions Core Tools](https://learn.microsoft.com/azure/azure-functions/functions-run-local) v4
 - Docker Desktop（DTS Emulator と Azurite を起動するため）
@@ -41,19 +41,31 @@ aspire run
 
 ```pwsh
 # Aspire ダッシュボードで funcapp のエンドポイントを確認してから
-curl -X POST http://localhost:<funcapp-port>/api/StartWeather
+curl.exe -X POST http://localhost:<funcapp-port>/api/StartCreation
 ```
 
 返却される `statusQueryGetUri` でステータス確認可能。
 DTS ダッシュボード（Aspire ダッシュボード上の "Scheduler Dashboard" リンク）で
 オーケストレーションの進行を可視化できる。
+Tokyo → Seattle → London の作成 Activity が順次完了すると、Human-in-the-loop の外部イベント待ちになる。
+承認または拒否は次の HTTP トリガーで送信する：
+
+```pwsh
+curl.exe -X POST http://localhost:<funcapp-port>/api/ApproveCreation/<instance-id> `
+  -H "Content-Type: application/json" `
+  -d '{ "decision": "OK" }'
+
+curl.exe -X POST http://localhost:<funcapp-port>/api/ApproveCreation/<instance-id> `
+  -H "Content-Type: application/json" `
+  -d '{ "decision": "NG" }'
+```
 
 ### Durable Functions の "Durable" を体感する
 
 1. HTTP リクエストでオーケストレーション開始
 2. 進行中に **Aspire ダッシュボードから `funcapp` だけ Stop**
 3. DTS ダッシュボードに履歴が残っていることを確認
-4. `funcapp` を **Start** → 続きから再開され、最終結果が返ってくる
+4. `funcapp` を **Start** → 続きから再開され、Human-in-the-loop の外部イベント待ちになる
 
 > ⚠️ DTS Emulator はインメモリストレージ。`scheduler` や `azurite` を停止すると
 > 履歴が消えるので、デモ中は **`funcapp` のみ** 操作する。

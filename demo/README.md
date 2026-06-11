@@ -10,7 +10,7 @@ YonaYona Durable Functions Night 登壇用ライブデモのソリューショ�
 |--------------|------|-----------|
 | `AppHost/`         | .NET Aspire AppHost。DTS Emulator + Azurite + Functions を統合起動 | net10.0 |
 | `ServiceDefaults/` | Aspire 共通設定（このデモでは未使用、テンプレ既定） | net10.0 |
-| `Functions/`       | Azure Functions プロジェクト。Weather Orchestrator | net10.0 |
+| `Functions/`       | Azure Functions プロジェクト。Resource Creation Orchestrator | net10.0 |
 
 ## 起動
 
@@ -35,8 +35,8 @@ aspire run
 
 ## デモシナリオ
 
-「6 都市の天気を並列取得 → 平均気温を返す」を Fan-out / Fan-in で実装。
-各都市の取得は `Task.Delay` で 5〜10 秒のランダム遅延 + ランダム気温（進捗を見せるため）。
+「Tokyo → Seattle → London の新規作成処理を順次実行 → 全結果がそろったら Human-in-the-loop で承認待ち → OK なら結果、NG なら拒否結果を返す」を Function chaining + External Event で実装。
+各拠点の作成 Activity は `Task.Delay` で固定 5 秒待機するため、3 拠点で合計約 15 秒かかる。
 
 ### 1. オーケストレーション開始
 
@@ -44,7 +44,7 @@ aspire run
 
 ```pwsh
 # ポートはダッシュボードで確認（例: 7018）
-curl -X POST http://localhost:7018/api/StartWeather
+curl.exe -X POST http://localhost:7018/api/StartCreation
 ```
 
 返却 JSON の `StatusQueryGetUri` で進捗を確認できる：
@@ -61,7 +61,7 @@ curl -X POST http://localhost:7018/api/StartWeather
 1. オーケストレーション開始後、すぐに Aspire ダッシュボードで `funcapp` を **Stop**
 2. DTS ダッシュボード（"Scheduler Dashboard" リンク）でインスタンスが残っていることを確認
 3. `funcapp` を **Start**
-4. `StatusQueryGetUri` を再取得 → `runtimeStatus: Completed` で結果が返ってくる
+4. `StatusQueryGetUri` を再取得 → Tokyo、Seattle、London の順次 Activity が終わると `runtimeStatus: Running` のまま `customStatus.status: WaitingForHumanApproval` になる
 
 CLI からも操作可能：
 
@@ -70,23 +70,70 @@ aspire resource funcapp stop
 aspire resource funcapp start
 ```
 
-### 3. 結果の例
+### 3. Human-in-the-loop の承認 / 拒否
+
+3 拠点の結果がそろったら、外部イベント `HumanApproval` を HTTP endpoint から送る：
+
+```pwsh
+# OK の場合
+curl.exe -X POST http://localhost:7018/api/ApproveCreation/{instanceId} `
+  -H "Content-Type: application/json" `
+  -d '{ "decision": "OK" }'
+
+# NG の場合
+curl.exe -X POST http://localhost:7018/api/ApproveCreation/{instanceId} `
+  -H "Content-Type: application/json" `
+  -d '{ "decision": "NG" }'
+```
+
+`{instanceId}` には、`StartCreation` の返却 JSON に含まれる `Id` を指定する。
+送信できる decision は `OK` / `NG` のみ。それ以外は `400 Bad Request` になる。
+
+### 4. OK 結果の例
 
 ```json
 {
-  "name": "WeatherOrchestrator",
+  "name": "ResourceCreationOrchestrator",
   "instanceId": "...",
   "runtimeStatus": "Completed",
   "output": {
-    "Cities": [
-      { "City": "東京",   "Temperature": 30 },
-      { "City": "大阪",   "Temperature": -5 },
-      { "City": "札幌",   "Temperature": -1 },
-      { "City": "福岡",   "Temperature": 21 },
-      { "City": "那覇",   "Temperature": 34 },
-      { "City": "仙台",   "Temperature": 27 }
-    ],
-    "Average": 17.666666666666668
+    "Status": "Approved",
+    "Message": "Human approval was accepted.",
+    "Results": [
+      {
+        "Location": "Tokyo",
+        "ResourceName": "demo-resource-tokyo",
+        "Status": "Created",
+        "CreatedAt": "2026-06-11T13:21:30.0000000+00:00"
+      },
+      {
+        "Location": "Seattle",
+        "ResourceName": "demo-resource-seattle",
+        "Status": "Created",
+        "CreatedAt": "2026-06-11T13:21:30.0000000+00:00"
+      },
+      {
+        "Location": "London",
+        "ResourceName": "demo-resource-london",
+        "Status": "Created",
+        "CreatedAt": "2026-06-11T13:21:30.0000000+00:00"
+      }
+    ]
+  }
+}
+```
+
+### 5. NG 結果の例
+
+```json
+{
+  "name": "ResourceCreationOrchestrator",
+  "instanceId": "...",
+  "runtimeStatus": "Completed",
+  "output": {
+    "Status": "Rejected",
+    "Message": "Human approval was rejected.",
+    "Results": []
   }
 }
 ```

@@ -1,15 +1,33 @@
 ﻿namespace Functions;
 
-/// <summary>
-/// 都市の天気情報を表すモデル
-/// </summary>
-/// <param name="City">都市名</param>
-/// <param name="Temperature">気温</param>
-public record CityWeather(string City, int Temperature);
+public record LocationCreationResult(
+    string Location,
+    string ResourceName,
+    string Status,
+    DateTimeOffset CreatedAt);
 
-/// <summary>
-/// 全都市の天気情報と平均気温をまとめたモデル
-/// </summary>
-/// <param name="Cities">都市の天気情報の配列</param>
-/// <param name="Average">平均気温</param>
-public record WeatherResult(CityWeather[] Cities, double Average);
+public record ApprovalDecisionRequest(string? Decision);
+
+public record ApprovalDecision(string Decision);
+
+public record CreationApprovalStatus(
+    string Status,
+    string WaitingForEvent,
+    LocationCreationResult[] Results);
+
+public record CreationWorkflowResult(
+    string Status,
+    string Message,
+    LocationCreationResult[] Results);
+
+public static class ApprovalDecisions
+{
+    public const string Ok = "OK";
+    public const string Ng = "NG";
+
+    public static bool TryNormalize(string? decision, out string normalized)
+    {
+        normalized = decision?.Trim().ToUpperInvariant() ?? string.Empty;
+        return normalized is Ok or Ng;
+    }
+}

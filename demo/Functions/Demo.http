@@ -1,3 +1,22 @@
 ﻿@baseUrl = http://localhost:7018
 
-POST {{baseUrl}}/api/StartWeather
+POST {{baseUrl}}/api/StartCreation
+
+###
+@instanceId = replace-with-instance-id
+
+POST {{baseUrl}}/api/ApproveCreation/{{instanceId}}
+Content-Type: application/json
+
+{
+  "decision": "OK"
+}
+
+###
+
+POST {{baseUrl}}/api/ApproveCreation/{{instanceId}}
+Content-Type: application/json
+
+{
+  "decision": "NG"
+}

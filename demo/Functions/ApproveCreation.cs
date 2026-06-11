@@ -1,0 +1,77 @@
+using System.Net;
+using System.Text.Json;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.DurableTask.Client;
+using Microsoft.Extensions.Logging;
+
+namespace Functions;
+
+public static class ApproveCreation
+{
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+
+    [Function(nameof(ApproveCreation))]
+    public static async Task<HttpResponseData> Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "ApproveCreation/{instanceId}")] HttpRequestData req,
+        string instanceId,
+        [DurableClient] DurableTaskClient client,
+        FunctionContext context)
+    {
+        var logger = context.GetLogger(nameof(ApproveCreation));
+        ApprovalDecisionRequest? approvalRequest;
+
+        // リクエスト本文から OK / NG の判断を受け取る。
+        try
+        {
+            approvalRequest = await JsonSerializer.DeserializeAsync<ApprovalDecisionRequest>(
+                req.Body,
+                JsonOptions);
+        }
+        catch (JsonException ex)
+        {
+            logger.LogWarning(ex, "Invalid approval request JSON");
+            return await CreateBadRequestResponse(req, "request body must be JSON");
+        }
+
+        if (!ApprovalDecisions.TryNormalize(approvalRequest?.Decision, out var decision))
+        {
+            return await CreateBadRequestResponse(req, "decision must be OK or NG");
+        }
+
+        // 待機中のオーケストレーションへ HumanApproval 外部イベントを送る。
+        await client.RaiseEventAsync(
+            instanceId,
+            ResourceCreationOrchestrator.HumanApprovalEventName,
+            new ApprovalDecision(decision));
+
+        logger.LogInformation(
+            "Raised {EventName}={Decision} for orchestration {InstanceId}",
+            ResourceCreationOrchestrator.HumanApprovalEventName,
+            decision,
+            instanceId);
+
+        var response = req.CreateResponse(HttpStatusCode.Accepted);
+        await response.WriteAsJsonAsync(new
+        {
+            instanceId,
+            eventName = ResourceCreationOrchestrator.HumanApprovalEventName,
+            decision
+        });
+        response.StatusCode = HttpStatusCode.Accepted;
+        return response;
+    }
+
+    private static async Task<HttpResponseData> CreateBadRequestResponse(
+        HttpRequestData req,
+        string error)
+    {
+        var badRequest = req.CreateResponse(HttpStatusCode.BadRequest);
+        await badRequest.WriteAsJsonAsync(new
+        {
+            error
+        });
+        badRequest.StatusCode = HttpStatusCode.BadRequest;
+        return badRequest;
+    }
+}
