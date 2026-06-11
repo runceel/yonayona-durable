@@ -40,13 +40,13 @@ public static class ResourceCreationOrchestrator
         {
             return new CreationWorkflowResult(
                 "Approved",
-                "Human approval was accepted.",
+                "承認されました。",
                 results);
         }
 
         return new CreationWorkflowResult(
             "Rejected",
-            "Human approval was rejected.",
+            "拒否されました。",
             []);
     }
 }

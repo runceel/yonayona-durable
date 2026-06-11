@@ -30,13 +30,13 @@ public static class ApproveCreation
         }
         catch (JsonException ex)
         {
-            logger.LogWarning(ex, "Invalid approval request JSON");
-            return await CreateBadRequestResponse(req, "request body must be JSON");
+            logger.LogWarning(ex, "承認リクエストの JSON が不正です");
+            return await CreateBadRequestResponse(req, "リクエスト本文は JSON にしてください");
         }
 
         if (!ApprovalDecisions.TryNormalize(approvalRequest?.Decision, out var decision))
         {
-            return await CreateBadRequestResponse(req, "decision must be OK or NG");
+            return await CreateBadRequestResponse(req, "decision は OK または NG を指定してください");
         }
 
         // 待機中のオーケストレーションへ HumanApproval 外部イベントを送る。
@@ -46,7 +46,7 @@ public static class ApproveCreation
             new ApprovalDecision(decision));
 
         logger.LogInformation(
-            "Raised {EventName}={Decision} for orchestration {InstanceId}",
+            "オーケストレーション {InstanceId} に {EventName}={Decision} を送信しました",
             ResourceCreationOrchestrator.HumanApprovalEventName,
             decision,
             instanceId);

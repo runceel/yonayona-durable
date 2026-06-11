@@ -98,7 +98,7 @@ curl.exe -X POST http://localhost:7018/api/ApproveCreation/{instanceId} `
   "runtimeStatus": "Completed",
   "output": {
     "Status": "Approved",
-    "Message": "Human approval was accepted.",
+    "Message": "承認されました。",
     "Results": [
       {
         "Location": "Tokyo",
@@ -132,7 +132,7 @@ curl.exe -X POST http://localhost:7018/api/ApproveCreation/{instanceId} `
   "runtimeStatus": "Completed",
   "output": {
     "Status": "Rejected",
-    "Message": "Human approval was rejected.",
+    "Message": "拒否されました。",
     "Results": []
   }
 }

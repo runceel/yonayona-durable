@@ -19,7 +19,7 @@ public static class StartCreation
         string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(
             nameof(ResourceCreationOrchestrator));
 
-        logger.LogInformation("Started orchestration with instance ID = {InstanceId}", instanceId);
+        logger.LogInformation("オーケストレーションを開始しました。InstanceId = {InstanceId}", instanceId);
 
         return await client.CreateCheckStatusResponseAsync(req, instanceId);
     }

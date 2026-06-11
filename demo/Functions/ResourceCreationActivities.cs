@@ -11,13 +11,13 @@ public static class ResourceCreationActivities
         FunctionContext context)
     {
         var logger = context.GetLogger(nameof(CreateResource));
-        logger.LogInformation("Creating resource in {City}", city);
+        logger.LogInformation("{City} のリソース作成を開始します", city);
 
         // 実際のリソース作成処理の代わりに、5 秒かかる処理として見せる。
         await Task.Delay(TimeSpan.FromSeconds(5));
 
         var resourceName = $"demo-resource-{city.ToLowerInvariant()}";
-        logger.LogInformation("Created {ResourceName} in {City}", resourceName, city);
+        logger.LogInformation("{City} のリソース {ResourceName} を作成しました", city, resourceName);
 
         return new LocationCreationResult(
             city,
