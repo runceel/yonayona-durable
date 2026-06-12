@@ -1,4 +1,4 @@
-using Microsoft.Azure.Functions.Worker;
+﻿using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask;
 
 namespace Functions;
@@ -36,7 +36,7 @@ public static class ResourceCreationOrchestrator
         var approval = await context.WaitForExternalEvent<ApprovalDecision>(
             HumanApprovalEventName);
 
-        if (approval.Decision == ApprovalDecisions.Ok)
+        if (approval.IsApproved)
         {
             return new CreationWorkflowResult(
                 "Approved",

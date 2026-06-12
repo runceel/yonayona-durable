@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -34,7 +34,7 @@ public static class ApproveCreation
             return await CreateBadRequestResponse(req, "リクエスト本文は JSON にしてください");
         }
 
-        if (!ApprovalDecisions.TryNormalize(approvalRequest?.Decision, out var decision))
+        if (!ApprovalDecisions.TryNormalize(approvalRequest?.IsApproved, out var decision))
         {
             return await CreateBadRequestResponse(req, "decision は OK または NG を指定してください");
         }

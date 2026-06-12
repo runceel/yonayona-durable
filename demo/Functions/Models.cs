@@ -6,9 +6,9 @@ public record LocationCreationResult(
     string Status,
     DateTimeOffset CreatedAt);
 
-public record ApprovalDecisionRequest(string? Decision);
+public record ApprovalDecisionRequest(bool? IsApproved);
 
-public record ApprovalDecision(string Decision);
+public record ApprovalDecision(bool IsApproved);
 
 public record CreationApprovalStatus(
     string Status,
@@ -22,12 +22,16 @@ public record CreationWorkflowResult(
 
 public static class ApprovalDecisions
 {
-    public const string Ok = "OK";
-    public const string Ng = "NG";
-
-    public static bool TryNormalize(string? decision, out string normalized)
+    public static bool TryNormalize(bool? decision, out bool normalized)
     {
-        normalized = decision?.Trim().ToUpperInvariant() ?? string.Empty;
-        return normalized is Ok or Ng;
+        if (decision == null)
+        {
+            normalized = false;
+            return false;
+        }
+
+        normalized = decision.Value;
+        return true;
     }
+       
 }
